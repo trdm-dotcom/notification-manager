@@ -30,7 +30,7 @@ export default class NotificationService {
     Kafka.getInstance().sendMessage(transactionId.toString(), config.topic.notification, '', notificationMessage);
     if (request.isSave) {
       const notification: Notification = new Notification();
-      notification.userid = request.userId;
+      notification.userId = request.userId;
       notification.title = request.title;
       notification.content = request.content;
       notification.isRead = false;
