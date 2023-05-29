@@ -1,0 +1,31 @@
+{
+  "name": "notification-manager",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "run-local": "node build/src/index.js",
+    "start": "npm run build && node build/src/index.js",
+    "build": "tsc -p tsconfig.json"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/uuid": "^8.3.4",
+    "common": "file:../common",
+    "dotenv": "^16.0.1",
+    "jackson-js": "^1.1.0",
+    "moment": "^2.29.4",
+    "reflect-metadata": "^0.1.13",
+    "ts-node": "^10.7.0",
+    "tslib": "^2.4.0",
+    "typedi": "^0.10.0",
+    "uuid": "^8.3.2",
+    "typeorm": "^0.3.12"
+  },
+  "devDependencies": {
+    "@types/node": "^14.18.30",
+    "typescript": "^4.0.3"
+  }
+}
