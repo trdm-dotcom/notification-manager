@@ -5,7 +5,7 @@ export default class Notification {
   @PrimaryGeneratedColumn()
   id: number;
   @Column({ name: 'user_id' })
-  userid: number;
+  userId: number;
   @Column({ name: 'title' })
   title: string;
   @Column({ name: 'content' })
