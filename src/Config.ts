@@ -32,11 +32,11 @@ let config = {
   kafkaTopicOptions: {},
   requestHandlerTopics: [],
   mongo: {
-    url: Utils.getEnvStr('ENV_MONGO_URL', 'mongodb://localhost:27017/notification'),
-    host: Utils.getEnvStr('ENV_MONGO_HOSTT', 'localhost'),
-    port: Utils.getEnvStr('ENV_MONGO_PORT', '27017'),
-    username: Utils.getEnvStr('ENV_MONGO_USERNAME', 'root'),
-    password: Utils.getEnvStr('ENV_MONGO_PASSWORD', 'admin'),
+    url: `mongodb://${Utils.getEnvStr('ENV_MONGO_HOST', 'localhost')}:${Utils.getEnvStr(
+      'ENV_MONGO_PORT',
+      '27017'
+    )}/notification`,
+    options: {},
   },
 };
 

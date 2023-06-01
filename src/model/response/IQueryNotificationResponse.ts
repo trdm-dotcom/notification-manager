@@ -1,5 +1,5 @@
 export default interface IQueryNotificationResponse {
-  id?: number;
+  id?: any;
   title?: string;
   content?: string;
   date?: Date;

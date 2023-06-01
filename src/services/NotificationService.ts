@@ -2,15 +2,11 @@ import { Service } from 'typedi';
 import IPushNotificationRequest from '../model/request/IPushNotificationRequest';
 import { ObjectMapper } from 'jackson-js';
 import { FirebaseConfiguration, Kafka, MethodEnum, NotificationMessage } from 'common';
-import config from '../config';
-import { Repository } from 'typeorm';
-import Notification from '../model/entities/Nofitication';
-import { AppDataSource } from '../Connection';
+import config from '../Config';
+import { INotification, NotificationModel } from '../model/schema/NotificationSchema';
 
 @Service()
 export default class NotificationService {
-  private notificationRepository: Repository<Notification> = AppDataSource.getRepository(Notification);
-
   public async pushNotification(request: IPushNotificationRequest, transactionId: string | number) {
     const objectMapper: ObjectMapper = new ObjectMapper();
     let notificationMessage: NotificationMessage = new NotificationMessage();
@@ -29,12 +25,13 @@ export default class NotificationService {
     notificationMessage.setTemplate(templateMap);
     Kafka.getInstance().sendMessage(transactionId.toString(), config.topic.notification, '', notificationMessage);
     if (request.isSave) {
-      const notification: Notification = new Notification();
-      notification.userId = request.userId;
-      notification.title = request.title;
-      notification.content = request.content;
-      notification.isRead = false;
-      await this.notificationRepository.save(notification);
+      const notification: INotification = new NotificationModel({
+        userId: request.userId,
+        title: request.title,
+        content: request.content,
+        isRead: false,
+      });
+      await notification.save();
     }
   }
 }

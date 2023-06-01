@@ -1,37 +1,39 @@
 import { Service } from 'typedi';
-import { Repository } from 'typeorm';
-import { AppDataSource } from '../Connection';
-import Notification from '../model/entities/Nofitication';
 import IQueryNotificationResponse from '../model/response/IQueryNotificationResponse';
 import { IQueryNotificationRequest } from '../model/request/IQueryNotificationRequest';
 import { IDataRequest } from 'common/build/src/modules/models';
 import IRemarkNotificationRequest from '../model/request/IRemarkNotificationRequest';
-import { Errors } from 'common';
+import { Errors, Utils } from 'common';
+import * as moment from 'moment';
+import { INotification, NotificationModel } from '../model/schema/NotificationSchema';
+import mongoose from 'mongoose';
 
 @Service()
 export default class ManagerService {
-  private notificationRepository: Repository<Notification> = AppDataSource.getRepository(Notification);
-
   public async queryAll(request: IQueryNotificationRequest) {
     const limit = request.pageSize == null ? 20 : Math.min(request.pageSize, 100);
     const offset = request.pageNumber == null ? 0 : Math.max(request.pageNumber - 1, 0) * limit;
+    const now: Date = moment().toDate();
+    const start: Date = Utils.subtractTime(now, 3, 'month');
+    const list: INotification[] = await NotificationModel.find(
+      {
+        userId: request.headers.token.userData.id,
+        createdAt: {
+          $gte: start,
+          $lte: now,
+        },
+      },
+      null,
+      {
+        limit: limit,
+        skip: offset,
+        sort: { createdAt: -1 },
+      }
+    );
 
-    const list: Notification[] = await this.notificationRepository
-      .createQueryBuilder('notification')
-      .where(
-        'notification.userId = :userId and notification.createdAt BETWEEN DATE_SUB(CURDATE(), interval 6 month) AND NOW()',
-        {
-          userId: request.headers.token.userData.id,
-        }
-      )
-      .orderBy('notification.createdAt', 'DESC')
-      .take(limit)
-      .skip(offset)
-      .getMany();
-
-    return list.map((value: Notification, index: number) => {
+    return list.map((value: INotification, index: number) => {
       const item: IQueryNotificationResponse = {
-        id: value.id,
+        id: value._id.toString(),
         title: value.title,
         content: value.content,
         date: value.createdAt,
@@ -42,41 +44,27 @@ export default class ManagerService {
   }
 
   public async countUnreadNotifications(request: IDataRequest) {
-    return this.notificationRepository
-      .createQueryBuilder('notification')
-      .where('notification.userId = :userId AND notification.isRead IS FALSE', {
-        userId: request.headers.token.userData.id,
-      })
-      .getCount();
+    const result = await NotificationModel.countDocuments({
+      userId: request.headers.token.userData.id,
+      isRead: false,
+    });
+    return { result: result };
   }
 
   public async remarkNotification(request: IRemarkNotificationRequest) {
-    try {
-      if (request != null) {
-        await this.notificationRepository
-          .createQueryBuilder('notification')
-          .update(Notification)
-          .set({ isRead: true })
-          .where(
-            'notification.userId = :userId AND notification.id IN (:notification) AND notification.isRead IS FALSE',
-            {
-              userId: request.headers.token.userData.id,
-              notification: request.notificationId,
-            }
-          )
-          .execute();
-      } else {
-        await this.notificationRepository
-          .createQueryBuilder('notification')
-          .update(Notification)
-          .set({ isRead: true })
-          .where('notification.userId = :userId AND notification.isRead IS FALSE', {
-            userId: request.headers.token.userData.id,
-            notification: request.notificationId,
-          })
-          .execute();
-      }
-    } catch (error) {
+    var condition = { userId: request.headers.token.userData.id, isRead: false };
+    if (request.notificationId != null) {
+      const objectIds: mongoose.Types.ObjectId[] = request.notificationId.map((id) => new mongoose.Types.ObjectId(id));
+      console.log(objectIds);
+      condition = {
+        ...{ _id: { $in: objectIds } },
+        ...condition,
+      };
+    }
+    const result = await NotificationModel.updateMany(condition, {
+      $set: { isRead: true },
+    });
+    if (result.modifiedCount < 1) {
       throw new Errors.GeneralError('UPDATE_NOTIFICATION_FAIL');
     }
     return {};

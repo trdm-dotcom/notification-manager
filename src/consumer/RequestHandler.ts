@@ -1,6 +1,6 @@
 import { Errors, Kafka, Logger } from 'common';
 import { Inject, Service } from 'typedi';
-import config from '../config';
+import config from '../Config';
 import NotificationService from '../services/NotificationService';
 import ManagerService from '../services/ManagerService';
 
@@ -22,7 +22,7 @@ export default class RequestHandler {
     );
   }
   private handleRequest: Kafka.Handle = async (message: Kafka.IMessage) => {
-    Logger.info(`Endpoint received message: ${message}`);
+    Logger.info(`Endpoint received message: ${JSON.stringify(message)}`);
     if (message == null || message.data == null) {
       return Promise.reject(new Errors.SystemError());
     } else {
@@ -36,7 +36,7 @@ export default class RequestHandler {
         case 'get:/api/v1/notification/count':
           return await this.managerService.countUnreadNotifications(message.data);
 
-        case 'put:/api/v1/notification/':
+        case 'put:/api/v1/notification':
           return await this.managerService.remarkNotification(message.data);
 
         default:
