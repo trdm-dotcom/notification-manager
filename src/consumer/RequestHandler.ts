@@ -1,8 +1,10 @@
-import { Errors, Kafka, Logger } from 'common';
+import { Errors, Logger } from 'common';
 import { Inject, Service } from 'typedi';
 import config from '../Config';
 import NotificationService from '../services/NotificationService';
 import ManagerService from '../services/ManagerService';
+import { Kafka } from 'kafka-common';
+import { getInstance } from '../services/KafkaProducerService';
 
 @Service()
 export default class RequestHandler {
@@ -12,13 +14,9 @@ export default class RequestHandler {
   private managerService: ManagerService;
 
   public init() {
-    const handle: Kafka.KafkaRequestHandler = new Kafka.KafkaRequestHandler(Kafka.getInstance());
-    Kafka.createConsumer(
-      config,
-      config.kafkaConsumerOptions,
-      config.requestHandlerTopics,
-      (message: Kafka.IKafkaMessage) => handle.handle(message, this.handleRequest),
-      config.kafkaTopicOptions
+    const handle: Kafka.KafkaRequestHandler = new Kafka.KafkaRequestHandler(getInstance());
+    new Kafka.KafkaConsumer(config).startConsumer([config.clusterId], (message: Kafka.MessageSetEntry) =>
+      handle.handle(message, this.handleRequest)
     );
   }
   private handleRequest: Kafka.Handle = async (message: Kafka.IMessage) => {

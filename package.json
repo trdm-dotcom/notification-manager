@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "run-local": "node build/src/index.js",
-    "start": "npm run build && node build/src/index.js",
+    "build-local": "npm run build && node build/src/index.js",
     "build": "tsc -p tsconfig.json"
   },
   "keywords": [],
@@ -16,6 +16,7 @@
     "common": "file:../common",
     "dotenv": "^16.0.1",
     "jackson-js": "^1.1.0",
+    "kafka-common": "file:../kafka-common",
     "moment": "^2.29.4",
     "mongoose": "^7.2.2",
     "reflect-metadata": "^0.1.13",

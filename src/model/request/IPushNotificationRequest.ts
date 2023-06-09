@@ -1,4 +1,4 @@
-import { FirebaseType } from 'common';
+import { Models } from 'common';
 
 export default interface IPushNotificationRequest {
   userId?: number;
@@ -6,7 +6,7 @@ export default interface IPushNotificationRequest {
   content?: string;
   template?: string;
   isSave?: boolean;
-  type?: FirebaseType;
+  type?: Models.FirebaseType;
   condition?: string;
   token?: string;
 }
