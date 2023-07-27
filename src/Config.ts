@@ -1,6 +1,5 @@
 import { Utils } from 'common';
-import { v4 as uuid } from 'uuid';
-const nodeId = uuid();
+
 let config = {
   logger: {
     config: {
@@ -23,8 +22,8 @@ let config = {
     notification: 'notification',
   },
   clusterId: 'notification-manager',
-  clientId: `notification-manager-${nodeId}`,
-  nodeId: nodeId,
+  clientId: `notification-manager-${Utils.getEnvNum('ENV_NODE_ID', 0)}`,
+  nodeId: Utils.getEnvNum('ENV_NODE_ID', 0),
   kafkaUrls: Utils.getEnvArr('ENV_KAFKA_URLS', ['localhost:9092']),
   kafkaCommonOptions: {},
   kafkaConsumerOptions: {},
