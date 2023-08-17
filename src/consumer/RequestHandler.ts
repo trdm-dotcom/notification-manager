@@ -6,6 +6,8 @@ import ManagerService from '../services/ManagerService';
 import { Kafka } from 'kafka-common';
 import { getInstance } from '../services/KafkaProducerService';
 
+const { UriNotFound } = Errors;
+
 @Service()
 export default class RequestHandler {
   @Inject()
@@ -38,7 +40,7 @@ export default class RequestHandler {
           return await this.managerService.remarkNotification(message.data);
 
         default:
-          return false;
+          throw new UriNotFound();
       }
     }
   };
