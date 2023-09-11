@@ -9,8 +9,8 @@ import NotificationConfig from '../model/entities/NotificationConfig';
 import Notification from '../model/entities/Notification';
 import { InjectRepository } from 'typeorm-typedi-extensions';
 import { MongoRepository, UpdateWriteOpResult } from 'typeorm';
-import { ObjectId } from 'mongodb';
 import IConfigNotificationRequest from '../model/request/IConfigNotificationRequest';
+import { ObjectId } from 'mongodb';
 
 @Service()
 export default class ManagerService {
@@ -40,7 +40,7 @@ export default class ManagerService {
 
     return list.map((value: Notification, index: number) => {
       const item: IQueryNotificationResponse = {
-        id: value.id.toString(),
+        id: value.id,
         title: value.title,
         content: value.content,
         date: value.createdAt,
@@ -64,7 +64,7 @@ export default class ManagerService {
     if (request.notificationId != null) {
       const objectIds: ObjectId = request.notificationId.map((id) => new ObjectId(id));
       condition = {
-        ...{ id: { $in: objectIds } },
+        ...{ _id: { $in: objectIds } },
         ...condition,
       };
     }

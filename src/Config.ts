@@ -38,6 +38,7 @@ let config = {
     useNewUrlParser: true,
     synchronize: false,
     database: 'notification',
+    poolSize: 100,
   },
 };
 
