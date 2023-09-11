@@ -36,6 +36,7 @@ let config = {
     username: Utils.getEnvStr('ENV_MONGO_USER', null),
     password: Utils.getEnvStr('ENV_MONGO_PASSWORD', null),
     useNewUrlParser: true,
+    useUnifiedTopology: true,
     synchronize: false,
     database: 'notification',
     poolSize: 100,

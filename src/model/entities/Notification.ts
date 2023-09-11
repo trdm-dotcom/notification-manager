@@ -17,4 +17,5 @@ export default class Notification {
   createdAt: Date;
   @UpdateDateColumn()
   updatedAt: Date;
+  isReceive: unknown;
 }
