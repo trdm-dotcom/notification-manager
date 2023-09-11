@@ -31,11 +31,13 @@ let config = {
   kafkaTopicOptions: {},
   requestHandlerTopics: [],
   mongo: {
-    url: `mongodb://${Utils.getEnvStr('ENV_MONGO_HOST', 'localhost')}:${Utils.getEnvStr(
-      'ENV_MONGO_PORT',
-      '27017'
-    )}/notification`,
-    options: {},
+    host: Utils.getEnvStr('ENV_MONGO_HOST', 'localhost'),
+    port: Utils.getEnvNum('ENV_MONGO_PORT', 27017),
+    username: Utils.getEnvStr('ENV_MONGO_USER', null),
+    password: Utils.getEnvStr('ENV_MONGO_PASSWORD', null),
+    useNewUrlParser: true,
+    synchronize: false,
+    database: 'notification',
   },
 };
 

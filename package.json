@@ -18,11 +18,13 @@
     "jackson-js": "^1.1.0",
     "kafka-common": "file:../kafka-common",
     "moment": "^2.29.4",
-    "mongoose": "^7.2.2",
+    "mongodb": "^3.7.4",
     "reflect-metadata": "^0.1.13",
     "ts-node": "^10.7.0",
     "tslib": "^2.4.0",
     "typedi": "^0.10.0",
+    "typeorm": "^0.2.45",
+    "typeorm-typedi-extensions": "^0.4.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

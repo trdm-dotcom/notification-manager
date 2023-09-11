@@ -38,6 +38,9 @@ export default class RequestHandler {
 
         case 'put:/api/v1/notification':
           return await this.managerService.remarkNotification(message.data);
+        
+        case 'put:/api/v1/notification/receive':
+          return await this.managerService.receiveNotification(message.data);
 
         default:
           throw new UriNotFound();

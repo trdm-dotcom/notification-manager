@@ -3,16 +3,26 @@ import { Container } from 'typedi';
 import { Logger } from 'common';
 import config from './Config';
 import RequestHandler from './consumer/RequestHandler';
-import mongoose from 'mongoose';
 import { initKafka } from './services/KafkaProducerService';
+import { createConnection, useContainer } from 'typeorm';
+import Notification from './model/entities/Notification';
+import NotificationConfig from './model/entities/NotificationConfig';
+import { Container as ContainerTypeOrm } from 'typeorm-typedi-extensions';
 
 Logger.create(config.logger.config, true);
 Logger.info('Starting...');
 
 async function run() {
   Logger.info('run service notification manager');
+  useContainer(ContainerTypeOrm);
+  await createConnection({
+    ...{
+      type: 'mongodb',
+      entities: [Notification, NotificationConfig],
+    },
+    ...config.mongo,
+  });
   initKafka();
-  mongoose.connect(config.mongo.url, config.mongo.options).then(() => Logger.info('connected to mongo!'));
   Container.get(RequestHandler).init();
 }
 

@@ -3,16 +3,21 @@ import IPushNotificationRequest from '../model/request/IPushNotificationRequest'
 import { ObjectMapper } from 'jackson-js';
 import { Models } from 'common';
 import config from '../Config';
-import { INotification, NotificationModel } from '../model/schema/NotificationSchema';
 import { getInstance } from './KafkaProducerService';
+import { InjectRepository } from 'typeorm-typedi-extensions';
+import { MongoRepository } from 'typeorm';
+import Notification from '../model/entities/Notification';
 
 @Service()
 export default class NotificationService {
+  @InjectRepository(Notification)
+  private notificationRepository: MongoRepository<Notification>;
+
   public async pushNotification(request: IPushNotificationRequest, transactionId: string | number) {
     const objectMapper: ObjectMapper = new ObjectMapper();
-    let notificationMessage: Models.NotificationMessage = new Models.NotificationMessage();
+    const notificationMessage: Models.NotificationMessage = new Models.NotificationMessage();
     notificationMessage.setMethod(Models.MethodEnum.FIREBASE);
-    let firebaseConfiguration: Models.FirebaseConfiguration = new Models.FirebaseConfiguration();
+    const firebaseConfiguration: Models.FirebaseConfiguration = new Models.FirebaseConfiguration();
     firebaseConfiguration.setType(request.type);
     firebaseConfiguration.setToken(request.token);
     firebaseConfiguration.setCondition(request.condition);
@@ -20,19 +25,18 @@ export default class NotificationService {
       title: request.title,
     });
     firebaseConfiguration.setData({ click_action: 'FLUTTER_NOTIFICATION_CLICK' });
-    let data: string = request.condition;
-    let templateMap: Map<string, Object> = new Map<string, Object>([[request.template, data]]);
+    const data: string = request.condition;
+    const templateMap: Map<string, Object> = new Map<string, Object>([[request.template, data]]);
     notificationMessage.setConfiguration(firebaseConfiguration, objectMapper);
     notificationMessage.setTemplate(templateMap);
     getInstance().sendMessage(transactionId.toString(), config.topic.notification, '', notificationMessage);
     if (request.isSave) {
-      const notification: INotification = new NotificationModel({
-        userId: request.userId,
-        title: request.title,
-        content: request.content,
-        isRead: false,
-      });
-      await notification.save();
+      const notification: Notification = new Notification();
+      notification.userId = request.userId;
+      notification.title = request.title;
+      notification.content = request.content;
+      notification.isRead = false;
+      await this.notificationRepository.save(notification);
     }
   }
 }
