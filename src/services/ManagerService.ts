@@ -22,7 +22,7 @@ export default class ManagerService {
 
   public async queryAll(request: IQueryNotificationRequest) {
     const limit = request.pageSize == null ? 20 : Math.min(request.pageSize, 100);
-    const offset = request.pageNumber == null ? 0 : Math.max(request.pageNumber, 0) * limit;
+    const offset = request.pageNumber == null ? 0 : Math.max(request.pageNumber - 1, 0) * limit;
     const now: Date = moment().toDate();
     const start: Date = Utils.subtractTime(now, 3, 'month');
     const list: Notification[] = await this.notificationRepository.find({
