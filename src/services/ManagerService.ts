@@ -8,9 +8,8 @@ import * as moment from 'moment';
 import NotificationConfig from '../model/entities/NotificationConfig';
 import Notification from '../model/entities/Notification';
 import { InjectRepository } from 'typeorm-typedi-extensions';
-import { MongoRepository, UpdateWriteOpResult } from 'typeorm';
+import { MongoRepository, ObjectID, UpdateWriteOpResult } from 'typeorm';
 import IConfigNotificationRequest from '../model/request/IConfigNotificationRequest';
-import { ObjectId } from 'mongodb';
 
 @Service()
 export default class ManagerService {
@@ -40,7 +39,7 @@ export default class ManagerService {
 
     return list.map((value: Notification, index: number) => {
       const item: IQueryNotificationResponse = {
-        id: value.id,
+        id: value.id.toHexString(),
         title: value.title,
         content: value.content,
         date: value.createdAt,
@@ -62,7 +61,7 @@ export default class ManagerService {
     const userId = request.headers.token.userData.id;
     var condition = { userId: userId, isRead: false };
     if (request.notificationId != null) {
-      const objectIds: ObjectId = request.notificationId.map((id) => new ObjectId(id));
+      const objectIds: ObjectID[] = request.notificationId.map((id) => ObjectID.createFromHexString(id));
       condition = {
         ...{ _id: { $in: objectIds } },
         ...condition,

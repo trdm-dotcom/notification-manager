@@ -1,10 +1,9 @@
-import { Column, CreateDateColumn, Entity, ObjectIdColumn, UpdateDateColumn } from 'typeorm';
-import { ObjectId } from 'mongodb';
+import { Column, CreateDateColumn, Entity, ObjectID, ObjectIdColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity()
 export default class NotificationConfig {
   @ObjectIdColumn()
-  id: ObjectId;
+  id: ObjectID;
   @Column()
   userId: number;
   @Column()
