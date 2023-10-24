@@ -8,7 +8,7 @@ import * as moment from 'moment';
 import NotificationConfig from '../model/entities/NotificationConfig';
 import Notification from '../model/entities/Notification';
 import { InjectRepository } from 'typeorm-typedi-extensions';
-import { MongoRepository, ObjectID, UpdateWriteOpResult } from 'typeorm';
+import { MongoRepository, ObjectID } from 'typeorm';
 import IConfigNotificationRequest from '../model/request/IConfigNotificationRequest';
 
 @Service()
@@ -67,10 +67,12 @@ export default class ManagerService {
         ...condition,
       };
     }
-    const result: UpdateWriteOpResult = await this.notificationRepository.updateMany(condition, {
-      $set: { isRead: true },
-    });
-    if (result.modifiedCount < 1) {
+    try {
+      await this.notificationRepository.updateMany(condition, {
+        $set: { isRead: true },
+      });
+    }
+    catch (err) {
       throw new Errors.GeneralError('UPDATE_NOTIFICATION_FAIL');
     }
     return {};
