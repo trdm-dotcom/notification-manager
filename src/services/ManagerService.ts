@@ -8,8 +8,9 @@ import * as moment from 'moment';
 import NotificationConfig from '../model/entities/NotificationConfig';
 import Notification from '../model/entities/Notification';
 import { InjectRepository } from 'typeorm-typedi-extensions';
-import { MongoRepository, ObjectID } from 'typeorm';
+import { MongoRepository } from 'typeorm';
 import IConfigNotificationRequest from '../model/request/IConfigNotificationRequest';
+import { ObjectID } from 'mongodb';
 
 @Service()
 export default class ManagerService {
@@ -61,7 +62,7 @@ export default class ManagerService {
     const userId = request.headers.token.userData.id;
     var condition = { userId: userId, isRead: false };
     if (request.notificationId != null) {
-      const objectIds: ObjectID[] = request.notificationId.map((id) => ObjectID.createFromHexString(id));
+      const objectIds: ObjectID[] = request.notificationId.map((id) => new ObjectID(id));
       condition = {
         ...{ _id: { $in: objectIds } },
         ...condition,
@@ -71,8 +72,7 @@ export default class ManagerService {
       await this.notificationRepository.updateMany(condition, {
         $set: { isRead: true },
       });
-    }
-    catch (err) {
+    } catch (err) {
       throw new Errors.GeneralError('UPDATE_NOTIFICATION_FAIL');
     }
     return {};
