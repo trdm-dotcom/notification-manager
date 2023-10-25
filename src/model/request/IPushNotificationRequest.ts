@@ -1,12 +1,16 @@
 import { Models } from 'common';
+import { NotificationType } from '../enum/NotificationType';
 
 export default interface IPushNotificationRequest {
-  userId?: number;
+  userId: number;
+  content: string;
+  template: string;
+  type: Models.FirebaseType;
+  isSave: boolean;
   title?: string;
-  content?: string;
-  template?: string;
-  isSave?: boolean;
-  type?: Models.FirebaseType;
+  sourceId?: any;
+  notificationType?: NotificationType;
+  authorId?: number;
   condition?: string;
   token?: string;
 }

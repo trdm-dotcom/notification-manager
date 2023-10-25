@@ -40,20 +40,18 @@ export default class NotificationService {
       );
       firebaseConfiguration.setCondition(request.condition);
       firebaseConfiguration.setNotification({
-        title: request.title,
+        title: request.title != null ? request.title : 'Fotei',
       });
-      // firebaseConfiguration.setData({ click_action: 'FLUTTER_NOTIFICATION_CLICK' });
-      const data: string = request.condition;
-      const templateMap: Map<string, Object> = new Map<string, Object>([[request.template, data]]);
+      const templateMap: Map<string, Object> = new Map<string, Object>([[request.template, request.content]]);
       notificationMessage.setConfiguration(firebaseConfiguration, objectMapper);
       notificationMessage.setTemplate(templateMap);
       getInstance().sendMessage(transactionId.toString(), config.topic.notification, '', notificationMessage);
       if (request.isSave) {
         const notification: Notification = new Notification();
         notification.userId = request.userId;
-        notification.title = request.title;
-        notification.content = request.content;
         notification.isRead = false;
+        notification.sourceId = request.sourceId;
+        notification.type = request.notificationType;
         await this.notificationRepository.save(notification);
       }
     }

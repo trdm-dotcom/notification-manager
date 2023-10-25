@@ -11,6 +11,9 @@ import { InjectRepository } from 'typeorm-typedi-extensions';
 import { MongoRepository } from 'typeorm';
 import IConfigNotificationRequest from '../model/request/IConfigNotificationRequest';
 import { ObjectID } from 'mongodb';
+import { getInstance } from './KafkaProducerService';
+import { IMessage } from 'kafka-common/build/src/modules/kafka';
+import { Kafka } from 'kafka-common';
 
 @Service()
 export default class ManagerService {
@@ -20,7 +23,7 @@ export default class ManagerService {
   @InjectRepository(Notification)
   private notificationRepository: MongoRepository<Notification>;
 
-  public async queryAll(request: IQueryNotificationRequest) {
+  public async queryAll(request: IQueryNotificationRequest, msgId: string | number) {
     const limit = request.pageSize == null ? 20 : Math.min(request.pageSize, 100);
     const offset = request.pageNumber == null ? 0 : Math.max(request.pageNumber - 1, 0) * limit;
     const now: Date = moment().toDate();
@@ -37,12 +40,31 @@ export default class ManagerService {
       skip: offset,
       order: { createdAt: -1 },
     });
-
+    const users: Set<number> = new Set<number>();
+    list.forEach((item: Notification) => {
+      users.add(item.authorId);
+    });
+    const userInfosRequest = {
+      userIds: users,
+      headers: request.headers,
+    };
+    const userInfosResponse: IMessage = await getInstance().sendRequestAsync(
+      `${msgId}`,
+      'user',
+      'internal:/api/v1/userInfos',
+      userInfosRequest
+    );
+    const userInfosData = Kafka.getResponse<any[]>(userInfosResponse);
+    const mapUserInfos: Map<number, any> = new Map();
+    userInfosData.forEach((info: any) => {
+      mapUserInfos.set(info.id, info);
+    });
     return list.map((value: Notification, index: number) => {
       const item: IQueryNotificationResponse = {
         id: value.id.toHexString(),
-        title: value.title,
-        content: value.content,
+        author: mapUserInfos.get(value.authorId),
+        sourceId: value.sourceId,
+        type: value.type,
         date: value.createdAt,
         isRead: value.isRead,
       };

@@ -31,7 +31,7 @@ export default class RequestHandler {
           return await this.notificationService.pushNotification(message.data, message.transactionId);
 
         case 'get:/api/v1/notification':
-          return await this.managerService.queryAll(message.data);
+          return await this.managerService.queryAll(message.data, message.transactionId);
 
         case 'get:/api/v1/notification/count':
           return await this.managerService.countUnreadNotifications(message.data);

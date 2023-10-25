@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, Entity, ObjectID, ObjectIdColumn, UpdateDateColumn } from 'typeorm';
+import { NotificationType } from '../enum/NotificationType';
 
 @Entity()
 export default class Notification {
@@ -7,9 +8,11 @@ export default class Notification {
   @Column()
   userId: number;
   @Column()
-  title: string;
+  authorId: number;
   @Column()
-  content: string;
+  type: NotificationType;
+  @Column()
+  sourceId: any;
   @Column()
   isRead: boolean;
   @CreateDateColumn()

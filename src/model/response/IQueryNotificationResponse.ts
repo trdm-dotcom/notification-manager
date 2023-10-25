@@ -1,7 +1,10 @@
+import { NotificationType } from '../enum/NotificationType';
+
 export default interface IQueryNotificationResponse {
-  id?: string;
-  title?: string;
-  content?: string;
-  date?: Date;
-  isRead?: boolean;
+  id: string;
+  type: NotificationType;
+  author: any;
+  sourceId: any;
+  date: Date;
+  isRead: boolean;
 }
