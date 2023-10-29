@@ -3,7 +3,7 @@ import IQueryNotificationResponse from '../model/response/IQueryNotificationResp
 import { IQueryNotificationRequest } from '../model/request/IQueryNotificationRequest';
 import { IDataRequest } from 'common/build/src/modules/models';
 import IRemarkNotificationRequest from '../model/request/IRemarkNotificationRequest';
-import { Errors, Utils } from 'common';
+import { Errors, Logger, Utils } from 'common';
 import * as moment from 'moment';
 import NotificationConfig from '../model/entities/NotificationConfig';
 import Notification from '../model/entities/Notification';
@@ -45,31 +45,35 @@ export default class ManagerService {
       users.add(item.authorId);
     });
     const userInfosRequest = {
-      userIds: users,
+      userIds: Array.from(users),
       headers: request.headers,
     };
-    const userInfosResponse: IMessage = await getInstance().sendRequestAsync(
-      `${msgId}`,
-      'user',
-      'internal:/api/v1/userInfos',
-      userInfosRequest
-    );
-    const userInfosData = Kafka.getResponse<any[]>(userInfosResponse);
-    const mapUserInfos: Map<number, any> = new Map();
-    userInfosData.forEach((info: any) => {
-      mapUserInfos.set(info.id, info);
-    });
-    return list.map((value: Notification, index: number) => {
-      const item: IQueryNotificationResponse = {
-        id: value.id.toHexString(),
-        author: mapUserInfos.get(value.authorId),
-        sourceId: value.sourceId,
-        type: value.type,
-        date: value.createdAt,
-        isRead: value.isRead,
-      };
-      return item;
-    });
+    try {
+      const userInfosResponse: IMessage = await getInstance().sendRequestAsync(
+        `${msgId}`,
+        'user',
+        'internal:/api/v1/userInfos',
+        userInfosRequest
+      );
+      const userInfosData = Kafka.getResponse<any[]>(userInfosResponse);
+      const mapUserInfos: Map<number, any> = new Map();
+      userInfosData.forEach((info: any) => {
+        mapUserInfos.set(info.id, info);
+      });
+      return list.map(
+        (value: Notification, index: number): IQueryNotificationResponse => ({
+          id: value.id.toHexString(),
+          author: mapUserInfos.get(value.authorId),
+          sourceId: value.sourceId,
+          type: value.type,
+          date: value.createdAt,
+          isRead: value.isRead,
+        })
+      );
+    } catch (err) {
+      Logger.error(`${msgId} fail to send message`, err);
+      return [];
+    }
   }
 
   public async countUnreadNotifications(request: IDataRequest) {
