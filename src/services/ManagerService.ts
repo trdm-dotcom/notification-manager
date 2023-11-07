@@ -131,4 +131,18 @@ export default class ManagerService {
     );
     return {};
   }
+
+  public async getNotificationSetting(request: IConfigNotificationRequest) {
+    const userId = request.headers.token.userData.id;
+    const invalidParams = new Errors.InvalidParameterError();
+    Utils.validate(request.deviceId, 'deviceId').setRequire().throwValid(invalidParams);
+    const config: NotificationConfig = await this.notificationConfigRepository.findOne({
+      userId: userId,
+      deviceId: request.deviceId,
+    });
+    if (config == null) {
+      return { receive: false };
+    }
+    return { receive: config.isReceive };
+  }
 }

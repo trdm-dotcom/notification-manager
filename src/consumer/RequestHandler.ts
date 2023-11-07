@@ -42,6 +42,9 @@ export default class RequestHandler {
         case 'put:/api/v1/notification/receive':
           return await this.managerService.receiveNotification(message.data);
 
+        case 'get:/api/v1/notification/setting':
+          return await this.managerService.getNotificationSetting(message.data);
+
         default:
           throw new UriNotFound();
       }

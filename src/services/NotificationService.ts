@@ -46,14 +46,15 @@ export default class NotificationService {
       notificationMessage.setConfiguration(firebaseConfiguration, objectMapper);
       notificationMessage.setTemplate(templateMap);
       getInstance().sendMessage(transactionId.toString(), config.topic.notification, '', notificationMessage);
-      if (request.isSave) {
-        const notification: Notification = new Notification();
-        notification.userId = request.userId;
-        notification.isRead = false;
-        notification.sourceId = request.sourceId;
-        notification.type = request.notificationType;
-        await this.notificationRepository.save(notification);
-      }
+    }
+    if (request.isSave) {
+      const notification: Notification = new Notification();
+      notification.userId = request.userId;
+      notification.isRead = false;
+      notification.authorId = request.authorId;
+      notification.sourceId = request.sourceId;
+      notification.type = request.notificationType;
+      await this.notificationRepository.save(notification);
     }
   }
 }
