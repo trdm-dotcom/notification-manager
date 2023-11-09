@@ -1,5 +1,4 @@
 import { Service } from 'typedi';
-import IQueryNotificationResponse from '../model/response/IQueryNotificationResponse';
 import { IQueryNotificationRequest } from '../model/request/IQueryNotificationRequest';
 import { IDataRequest } from 'common/build/src/modules/models';
 import IRemarkNotificationRequest from '../model/request/IRemarkNotificationRequest';
@@ -60,16 +59,21 @@ export default class ManagerService {
       userInfosData.forEach((info: any) => {
         mapUserInfos.set(info.id, info);
       });
-      return list.map(
-        (value: Notification, index: number): IQueryNotificationResponse => ({
-          id: value.id.toHexString(),
-          author: mapUserInfos.get(value.authorId),
-          sourceId: value.sourceId,
-          type: value.type,
-          date: value.createdAt,
-          isRead: value.isRead,
-        })
-      );
+      const responses: any[] = [];
+      list.forEach((value: Notification, index: number) => {
+        const authorInfo = mapUserInfos.get(value.authorId);
+        if (authorInfo && authorInfo.status === 'ACTIVE') {
+          responses.push({
+            id: value.id.toHexString(),
+            author: authorInfo,
+            sourceId: value.sourceId,
+            type: value.type,
+            date: value.createdAt,
+            isRead: value.isRead,
+          });
+        }
+      });
+      return responses;
     } catch (err) {
       Logger.error(`${msgId} fail to send message`, err);
       return [];
