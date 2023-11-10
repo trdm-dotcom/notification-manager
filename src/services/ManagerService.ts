@@ -39,6 +39,13 @@ export default class ManagerService {
       skip: offset,
       order: { createdAt: -1 },
     });
+    const count: number = await this.notificationRepository.count({
+      userId: request.headers.token.userData.id,
+      createdAt: {
+        $gte: start,
+        $lte: now,
+      },
+    });
     const users: Set<number> = new Set<number>();
     list.forEach((item: Notification) => {
       users.add(item.authorId);
@@ -59,11 +66,11 @@ export default class ManagerService {
       userInfosData.forEach((info: any) => {
         mapUserInfos.set(info.id, info);
       });
-      const responses: any[] = [];
+      const datas: any[] = [];
       list.forEach((value: Notification, index: number) => {
         const authorInfo = mapUserInfos.get(value.authorId);
         if (authorInfo && authorInfo.status === 'ACTIVE') {
-          responses.push({
+          datas.push({
             id: value.id.toHexString(),
             author: authorInfo,
             sourceId: value.sourceId,
@@ -73,10 +80,20 @@ export default class ManagerService {
           });
         }
       });
-      return responses;
+      return {
+        total: count,
+        datas: datas,
+        page: request.pageNumber,
+        totalPages: Math.ceil(count / limit),
+      };
     } catch (err) {
       Logger.error(`${msgId} fail to send message`, err);
-      return [];
+      return {
+        total: 0,
+        datas: [],
+        page: 0,
+        totalPages: 0,
+      };
     }
   }
 
