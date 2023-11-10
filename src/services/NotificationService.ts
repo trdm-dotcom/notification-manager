@@ -42,9 +42,10 @@ export default class NotificationService {
       firebaseConfiguration.setNotification({
         title: request.title != null ? request.title : 'Fotei',
       });
-      const templateMap: Map<string, Object> = new Map<string, Object>([[request.template, request.content]]);
+      const template = {};
+      template[request.template] = request.content;
       notificationMessage.setConfiguration(firebaseConfiguration, objectMapper);
-      notificationMessage.setTemplate(templateMap);
+      notificationMessage.setTemplate(template);
       getInstance().sendMessage(transactionId.toString(), config.topic.notification, '', notificationMessage);
     }
     if (request.isSave) {
