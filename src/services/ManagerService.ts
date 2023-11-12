@@ -23,8 +23,8 @@ export default class ManagerService {
   private notificationRepository: MongoRepository<Notification>;
 
   public async queryAll(request: IQueryNotificationRequest, msgId: string | number) {
-    const limit = request.pageSize == null ? 20 : Math.min(request.pageSize, 100);
-    const offset = request.pageNumber == null ? 0 : Math.max(request.pageNumber, 0) * limit;
+    const limit = request.pageSize == null ? 20 : Math.min(Number(request.pageSize), 100);
+    const offset = request.pageNumber == null ? 0 : Math.max(Number(request.pageNumber), 0) * limit;
     const now: Date = moment().toDate();
     const start: Date = Utils.subtractTime(now, 3, 'month');
     const list: Notification[] = await this.notificationRepository.find({
@@ -83,7 +83,7 @@ export default class ManagerService {
       return {
         total: count,
         datas: datas,
-        page: request.pageNumber,
+        page: Number(request.pageNumber),
         totalPages: Math.ceil(count / limit),
       };
     } catch (err) {
