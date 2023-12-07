@@ -43,7 +43,9 @@ export default class NotificationService {
         title: request.title != null ? request.title : 'Fotei',
       });
       const template = {};
-      template[request.template] = request.content;
+      template[request.template] = {
+        content: request.content,
+      };
       notificationMessage.setConfiguration(firebaseConfiguration, objectMapper);
       notificationMessage.setTemplate(template);
       getInstance().sendMessage(transactionId.toString(), config.topic.notification, '', notificationMessage);
